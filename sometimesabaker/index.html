@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1208">
+<meta name="description" content="#SometimesaBaker — A personal recipe card collection. Baked from scratch, weighed by grams.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SometimesaBaker">
+<link rel="manifest" href="manifest.json">
+<title>#SometimesaBaker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────
+   #SometimesaBaker · App Shell
+   Model: claude-sonnet-4-6 (hardcoded)
+───────────────────────────────────────────── */
+:root {
+  --ink:          #1a1208;
+  --char:         #2a1e0e;
+  --bark:         #4a3018;
+  --amber:        #c8860a;
+  --gold:         #d4a017;
+  --flame:        #e07820;
+  --cream:        #f5ead6;
+  --parchment:    #ede3cc;
+  --glass:        rgba(255,255,255,0.04);
+  --glass-b:      rgba(212,160,23,0.18);
+  --warn:         #e05050;
+  --warn-bg:      rgba(224,80,80,0.1);
+  --ok:           #5aaa60;
+  --ok-bg:        rgba(90,170,96,0.1);
+  --r:            12px;
+  --ease:         0.22s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background-color:var(--ink);
+  background-image:
+    repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,0.007) 3px,rgba(255,255,255,0.007) 6px),
+    radial-gradient(ellipse at 15% 0%,#3a1e06 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,#221508 0%,transparent 50%);
+  font-family:'DM Sans',sans-serif;
+  color:var(--cream);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── KEY BANNER ── */
+.key-banner{
+  background:linear-gradient(90deg,rgba(200,134,10,.15),rgba(224,120,32,.1));
+  border-bottom:1px solid rgba(200,134,10,.35);
+  padding:.55rem 1.5rem;
+  display:flex;align-items:center;justify-content:center;gap:.7rem;
+  font-size:.78rem;color:rgba(245,234,214,.75);flex-wrap:wrap;text-align:center;
+}
+.key-banner.hidden{display:none}
+.key-banner strong{color:var(--gold)}
+.key-banner button{color:var(--amber);text-decoration:underline;cursor:pointer;background:none;border:none;font:inherit;padding:0}
+.key-banner button:hover{color:var(--gold)}
+
+/* ── HEADER ── */
+.site-header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(26,18,8,.93);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--glass-b);
+  padding:.85rem 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+}
+.brand-lockup{display:flex;flex-direction:column;line-height:1}
+.brand-hashtag{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.06em;color:var(--gold)}
+.brand-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.7rem;color:rgba(212,160,23,.55);letter-spacing:.25em;text-transform:uppercase;margin-top:2px}
+.header-actions{display:flex;align-items:center;gap:.55rem}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;letter-spacing:.04em;
+  border:none;border-radius:8px;cursor:pointer;padding:.48rem .85rem;
+  transition:var(--ease);text-decoration:none;white-space:nowrap;
+}
+.btn-primary{background:linear-gradient(135deg,var(--amber),var(--flame));color:var(--ink)}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.45;pointer-events:none}
+.btn-ghost{background:var(--glass);color:var(--cream);border:1px solid var(--glass-b)}
+.btn-ghost:hover{background:rgba(255,255,255,.08)}
+.btn-ok{background:linear-gradient(135deg,#4a9050,#3a7840);color:#fff}
+.btn-ok:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-danger{background:rgba(224,80,80,.12);color:var(--warn);border:1px solid rgba(224,80,80,.3)}
+.btn-danger:hover{background:rgba(224,80,80,.22)}
+
+/* ── HERO ── */
+.hero{text-align:center;padding:3.5rem 1.5rem 2.5rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(200,134,10,.09) 0%,transparent 65%);pointer-events:none}
+.hero-eyebrow{font-size:.68rem;letter-spacing:.45em;text-transform:uppercase;color:var(--amber);margin-bottom:.9rem;opacity:.85}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6.5vw,4rem);font-weight:900;line-height:1.06;color:var(--cream);margin-bottom:.75rem}
+.hero-title em{font-style:italic;color:var(--flame)}
+.hero-desc{font-family:'Cormorant Garamond',serif;font-size:1.02rem;color:rgba(245,234,214,.6);max-width:460px;margin:0 auto}
+
+/* ── SEARCH ── */
+.search-section{padding:0 1.5rem 1.75rem;max-width:900px;margin:0 auto}
+.search-wrap{position:relative;margin-bottom:.9rem}
+.search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--amber);opacity:.65;pointer-events:none}
+#searchInput{
+  width:100%;background:var(--glass);border:1px solid var(--glass-b);border-radius:10px;
+  padding:.8rem 1rem .8rem 2.75rem;font-family:'DM Sans',sans-serif;font-size:.93rem;
+  color:var(--cream);outline:none;transition:var(--ease);
+}
+#searchInput::placeholder{color:rgba(245,234,214,.28)}
+#searchInput:focus{border-color:var(--amber);background:rgba(255,255,255,.06);box-shadow:0 0 0 3px rgba(200,134,10,.12)}
+.filter-row{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center}
+.filter-label{font-size:.68rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(212,160,23,.5);margin-right:.2rem}
+.chip{
+  font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:500;
+  padding:.32rem .8rem;border-radius:999px;border:1px solid var(--glass-b);
+  background:var(--glass);color:rgba(245,234,214,.6);cursor:pointer;transition:var(--ease);user-select:none;
+}
+.chip:hover{color:var(--cream);border-color:rgba(212,160,23,.38)}
+.chip.active{background:linear-gradient(135deg,rgba(200,134,10,.22),rgba(224,120,32,.18));border-color:var(--amber);color:var(--gold)}
+
+/* ── GRID ── */
+.grid-section{padding:0 1.5rem 4rem;max-width:900px;margin:0 auto}
+.grid-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.grid-count{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,214,.38)}
+.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:1rem}
+
+.recipe-card{
+  position:relative;border-radius:var(--r);border:1px solid var(--glass-b);
+  background:var(--glass);overflow:hidden;cursor:pointer;transition:var(--ease);
+  text-decoration:none;display:block;animation:cardIn .32s ease both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.recipe-card:hover{border-color:rgba(212,160,23,.42);transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.4),0 0 0 1px rgba(200,134,10,.14)}
+.card-swatch{height:6px;width:100%}
+.card-body{padding:1rem 1rem .9rem}
+.card-cat{font-size:.6rem;letter-spacing:.35em;text-transform:uppercase;color:var(--amber);opacity:.8;margin-bottom:.4rem}
+.card-title{font-family:'Playfair Display',serif;font-size:1.08rem;font-weight:700;color:var(--cream);line-height:1.25;margin-bottom:.45rem}
+.card-tags{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.6rem}
+.tag{font-size:.62rem;padding:.16rem .5rem;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:rgba(245,234,214,.45)}
+.card-foot{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem .75rem;border-top:1px solid rgba(255,255,255,.05)}
+.card-time{font-size:.7rem;color:rgba(245,234,214,.38);display:flex;align-items:center;gap:.28rem}
+.card-open{font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:.2rem;transition:var(--ease)}
+.recipe-card:hover .card-open{color:var(--gold)}
+
+.empty-state{grid-column:1/-1;text-align:center;padding:4rem 1rem;color:rgba(245,234,214,.28)}
+.empty-state-icon{font-size:2.4rem;margin-bottom:.9rem}
+.empty-state h3{font-family:'Playfair Display',serif;font-size:1.25rem;font-style:italic;margin-bottom:.45rem;color:rgba(245,234,214,.45)}
+
+/* ── MODAL BASE ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.76);backdrop-filter:blur(9px);
+  z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:1rem;
+  opacity:0;pointer-events:none;transition:opacity .22s ease;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  width:100%;max-width:620px;background:#231808;border:1px solid var(--glass-b);
+  border-radius:18px 18px 0 0;padding:2rem 2rem 2.5rem;
+  transform:translateY(38px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  max-height:90vh;overflow-y:auto;
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+@media(min-width:640px){.modal-overlay{align-items:center}.modal{border-radius:18px}}
+
+.modal-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.4rem}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.45rem;font-style:italic;color:var(--cream)}
+.modal-x{background:none;border:none;color:rgba(245,234,214,.38);font-size:1.4rem;cursor:pointer;padding:.2rem;transition:var(--ease)}
+.modal-x:hover{color:var(--cream)}
+.modal-field{margin-bottom:1rem}
+.modal-field label{display:block;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:.45rem}
+.modal-input,.modal-select,.modal-textarea{
+  width:100%;background:rgba(255,255,255,.05);border:1px solid var(--glass-b);
+  border-radius:8px;padding:.72rem 1rem;font-family:'DM Sans',sans-serif;font-size:.88rem;
+  color:var(--cream);outline:none;transition:var(--ease);
+}
+.modal-input:focus,.modal-select:focus,.modal-textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(200,134,10,.11)}
+.modal-select option{background:#231808;color:var(--cream)}
+.modal-textarea{resize:vertical;min-height:78px}
+.modal-hint{font-size:.73rem;color:rgba(245,234,214,.33);margin-top:.38rem}
+.modal-actions{display:flex;gap:.7rem;margin-top:1.65rem}
+.modal-actions .btn{flex:1;justify-content:center;padding:.72rem;font-size:.86rem}
+
+/* ── KEY MODAL ── */
+.key-note{background:rgba(200,134,10,.08);border:1px solid rgba(200,134,10,.2);border-radius:8px;padding:.85rem 1rem;font-size:.8rem;color:rgba(245,234,214,.62);line-height:1.6;margin-bottom:1.2rem}
+.key-note strong{color:var(--amber)}
+.key-note code{background:rgba(255,255,255,.08);padding:.1rem .38rem;border-radius:4px;font-size:.77rem;color:var(--amber)}
+.key-warn{background:var(--warn-bg);border:1px solid rgba(224,80,80,.25);border-radius:8px;padding:.7rem 1rem;font-size:.76rem;color:rgba(224,180,180,.85);line-height:1.55;margin-top:.7rem}
+.key-warn strong{color:var(--warn)}
+.key-status{display:flex;align-items:center;gap:.48rem;font-size:.76rem;padding:.48rem 0;margin-top:.45rem}
+.k-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.k-dot.set{background:var(--ok);box-shadow:0 0 5px rgba(90,170,96,.5)}
+.k-dot.unset{background:rgba(245,234,214,.18)}
+.k-dot.err{background:var(--warn);box-shadow:0 0 5px rgba(224,80,80,.5)}
+
+/* ── GEN PHASES ── */
+.gp{display:none}
+.gp.active{display:block}
+.gen-box{margin-top:1.4rem;padding:1.2rem;background:rgba(200,134,10,.07);border:1px solid rgba(200,134,10,.2);border-radius:10px}
+.gen-row{display:flex;align-items:center;gap:.55rem;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:.75rem}
+.gen-msg{font-family:'Cormorant Garamond',serif;font-size:.93rem;color:rgba(245,234,214,.68);line-height:1.5;min-height:2.4rem}
+.gen-chars{font-size:.68rem;color:rgba(245,234,214,.28);margin-top:.45rem;font-variant-numeric:tabular-nums}
+.done-box{margin-top:1.4rem;padding:1.2rem;background:var(--ok-bg);border:1px solid rgba(90,170,96,.25);border-radius:10px}
+.done-title{font-family:'Playfair Display',serif;font-size:1.02rem;font-style:italic;color:var(--cream);margin-bottom:.35rem}
+.done-meta{font-size:.76rem;color:rgba(245,234,214,.42);margin-bottom:.9rem}
+.done-actions{display:flex;gap:.45rem;flex-wrap:wrap}
+.done-actions .btn{font-size:.78rem;padding:.5rem .9rem}
+.err-box{margin-top:1.4rem;padding:.95rem 1.2rem;background:var(--warn-bg);border:1px solid rgba(224,80,80,.25);border-radius:10px;font-size:.83rem;color:rgba(224,180,180,.88);line-height:1.5}
+.err-box strong{color:var(--warn);display:block;margin-bottom:.28rem}
+
+/* ── FALLBACK ── */
+.fallback{display:none;margin-top:1.4rem;padding:1.2rem;background:rgba(200,134,10,.07);border:1px solid rgba(200,134,10,.2);border-radius:10px}
+.fallback.on{display:block}
+.fallback-lbl{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:.55rem}
+.fallback-text{font-family:'Cormorant Garamond',serif;font-size:.9rem;line-height:1.6;color:rgba(245,234,214,.72);white-space:pre-wrap;word-break:break-word;max-height:250px;overflow-y:auto}
+
+/* ── PREVIEW ── */
+.preview-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.preview-overlay.open{opacity:1;pointer-events:all}
+.preview-bar{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.2rem;background:var(--ink);border-bottom:1px solid var(--glass-b);flex-shrink:0;gap:.7rem}
+.preview-bar-title{font-family:'Playfair Display',serif;font-style:italic;color:var(--cream);font-size:.93rem}
+.preview-bar-actions{display:flex;gap:.45rem}
+.preview-frame{flex:1;width:100%;border:none;background:#fff}
+
+/* ── DEPLOY MODAL ── */
+.dep-section{margin-bottom:1.4rem}
+.dep-section h3{font-family:'Playfair Display',serif;font-size:.97rem;font-style:italic;color:var(--gold);margin-bottom:.55rem;display:flex;align-items:center;gap:.4rem}
+.dep-step{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:.55rem}
+.step-n{flex-shrink:0;width:21px;height:21px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--flame));color:var(--ink);font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step-t{font-size:.83rem;color:rgba(245,234,214,.72);line-height:1.5}
+.step-t code{background:rgba(255,255,255,.08);padding:.1rem .38rem;border-radius:4px;font-size:.77rem;color:var(--amber)}
+.dep-note{font-size:.76rem;color:rgba(245,234,214,.42);font-style:italic;padding:.7rem 1rem;background:rgba(255,255,255,.03);border-left:2px solid var(--amber);border-radius:0 6px 6px 0;margin-top:.45rem}
+
+/* ── SPINNER ── */
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(200,134,10,.28);border-top-color:var(--amber);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ── FOOTER ── */
+.site-footer{text-align:center;padding:1.75rem 1.5rem;border-top:1px solid var(--glass-b);font-size:.7rem;color:rgba(245,234,214,.22);letter-spacing:.15em}
+.site-footer span{color:var(--amber);opacity:.55}
+
+@media(max-width:480px){
+  .site-header,.hero,.search-section,.grid-section{padding-left:1rem;padding-right:1rem}
+  .hero{padding-top:2.5rem;padding-bottom:2rem}
+  .recipe-grid{grid-template-columns:1fr 1fr;gap:.7rem}
+}
+@media(max-width:360px){.recipe-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ═══ API KEY BANNER ═══ -->
+<div class="key-banner" id="keyBanner">
+  <strong>⚡ No API key set.</strong>
+  Generation will produce a copy-paste prompt instead of a live card.
+  <button id="bannerKeyBtn">Set your key →</button>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<header class="site-header">
+  <div class="brand-lockup">
+    <div class="brand-hashtag">#SometimesaBaker</div>
+    <div class="brand-sub">From Scratch · By Weight</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" id="keyBtn" title="API key">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      Key
+    </button>
+    <button class="btn btn-ghost" id="deployBtn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 17 21 12 16 7"/><polyline points="8 7 3 12 8 17"/></svg>
+      Deploy
+    </button>
+    <button class="btn btn-primary" id="newRecipeBtn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Recipe
+    </button>
+  </div>
+</header>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-eyebrow">A Personal Collection</div>
+  <h1 class="hero-title">Baked from scratch.<br><em>Weighed by grams.</em></h1>
+  <p class="hero-desc">Every recipe carded and calibrated. Sourdough to sliders — measured, scaled, and yours.</p>
+</section>
+
+<!-- ═══ SEARCH + FILTER ═══ -->
+<section class="search-section">
+  <div class="search-wrap">
+    <span class="search-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <input type="search" id="searchInput" placeholder="Search recipes, ingredients…" autocomplete="off" spellcheck="false">
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Filter:</span>
+    <button class="chip active" data-filter="all">All</button>
+    <button class="chip" data-filter="sourdough">Sourdough</button>
+    <button class="chip" data-filter="bread">Breads</button>
+    <button class="chip" data-filter="pastry">Pastry</button>
+    <button class="chip" data-filter="sweet">Sweets</button>
+    <button class="chip" data-filter="savory">Savory</button>
+  </div>
+</section>
+
+<!-- ═══ RECIPE GRID ═══ -->
+<main class="grid-section">
+  <div class="grid-meta">
+    <span class="grid-count" id="gridCount">— recipes</span>
+  </div>
+  <div class="recipe-grid" id="recipeGrid"></div>
+</main>
+
+<footer class="site-footer">
+  <span>#SometimesaBaker</span> &nbsp;·&nbsp; From Scratch · By Weight &nbsp;·&nbsp; All recipes in metric
+</footer>
+
+
+<!-- ═══════════════════════════════════════════
+     API KEY MODAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="keyModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 class="modal-title">API Key</h2>
+      <button class="modal-x" id="closeKeyModal">&times;</button>
+    </div>
+    <div class="key-note">
+      Get your key at <strong>console.anthropic.com → API Keys</strong>.<br>
+      Stored in <strong>localStorage</strong> — only ever sent to <code>api.anthropic.com</code>.
+    </div>
+    <div class="modal-field">
+      <label>Anthropic API Key</label>
+      <input type="password" class="modal-input" id="apiKeyInput" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+      <div class="key-status" id="keyStatusRow">
+        <div class="k-dot unset" id="keyDot"></div>
+        <span id="keyStatusText">No key saved</span>
+      </div>
+    </div>
+    <div class="key-warn">
+      <strong>⚠ Security note</strong>
+      For personal / local use, localStorage is fine. If this URL is public, proxy the key through a serverless function — see the Deploy guide.
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="clearKeyBtn">Clear</button>
+      <button class="btn btn-primary" id="saveKeyBtn" style="flex:2">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Key
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     NEW RECIPE MODAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="newRecipeModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 class="modal-title">New Recipe</h2>
+      <button class="modal-x" id="closeNewRecipe">&times;</button>
+    </div>
+
+    <!-- form -->
+    <div id="recipeForm">
+      <div class="modal-field">
+        <label>What do you want to make?</label>
+        <input type="text" class="modal-input" id="recipeName" placeholder="e.g. Cardamom Rolls, Beef Bourguignon…">
+      </div>
+      <div class="modal-field">
+        <label>Category</label>
+        <select class="modal-select" id="recipeCategory">
+          <option value="">— pick one —</option>
+          <option value="sourdough">Sourdough</option>
+          <option value="bread">Bread</option>
+          <option value="pastry">Pastry</option>
+          <option value="sweet">Sweet / Baked Goods</option>
+          <option value="savory">Savory / Cooking</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Notes (optional)</label>
+        <textarea class="modal-textarea" id="recipeNotes" placeholder="e.g. double batch, freeze checkpoint, use starter…"></textarea>
+        <div class="modal-hint" id="formHint"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="cancelNewRecipe">Cancel</button>
+        <button class="btn btn-primary" id="generateBtn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span id="genBtnLabel">Generate Card</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- generating -->
+    <div class="gp" id="gpGenerating">
+      <div class="gen-box">
+        <div class="gen-row"><div class="spin"></div>Generating card…</div>
+        <div class="gen-msg" id="genMsg">Researching recipe…</div>
+        <div class="gen-chars" id="genChars"></div>
+      </div>
+      <div style="margin-top:.9rem;text-align:center">
+        <button class="btn btn-ghost" id="cancelGenBtn" style="font-size:.76rem;padding:.38rem .75rem">Cancel</button>
+      </div>
+    </div>
+
+    <!-- done -->
+    <div class="gp" id="gpDone">
+      <div class="done-box">
+        <div class="done-title" id="doneTitle">Card ready!</div>
+        <div class="done-meta" id="doneMeta"></div>
+        <div class="done-actions">
+          <button class="btn btn-ghost" id="previewBtn">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Preview
+          </button>
+          <button class="btn btn-ok" id="saveCardBtn">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save to Collection
+          </button>
+          <button class="btn btn-ghost" id="dlCardBtn">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- error -->
+    <div class="gp" id="gpError">
+      <div class="err-box">
+        <strong>Generation failed</strong>
+        <span id="errMsg">Check your API key and try again.</span>
+      </div>
+      <div style="margin-top:.9rem">
+        <button class="btn btn-ghost" id="retryBtn" style="width:100%;justify-content:center">Try Again</button>
+      </div>
+    </div>
+
+    <!-- fallback (no key) -->
+    <div class="fallback" id="fallback">
+      <div class="fallback-lbl">Copy this prompt into Claude →</div>
+      <div class="fallback-text" id="fallbackText"></div>
+      <div style="margin-top:.9rem;display:flex;gap:.45rem">
+        <button class="btn btn-primary" id="copyPromptBtn" style="flex:1;justify-content:center">Copy Prompt</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══ CARD PREVIEW OVERLAY ═══ -->
+<div class="preview-overlay" id="previewOverlay">
+  <div class="preview-bar">
+    <span class="preview-bar-title" id="previewTitle">Preview</span>
+    <div class="preview-bar-actions">
+      <button class="btn btn-ok" id="previewSaveBtn" style="font-size:.76rem;padding:.42rem .8rem">Save to Collection</button>
+      <button class="btn btn-ghost" id="closePreview" style="font-size:.76rem;padding:.42rem .8rem">&times; Close</button>
+    </div>
+  </div>
+  <iframe class="preview-frame" id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     DEPLOY GUIDE MODAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="deployModal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-hdr">
+      <h2 class="modal-title">Deploy Your App</h2>
+      <button class="modal-x" id="closeDeployModal">&times;</button>
+    </div>
+
+    <div class="dep-section">
+      <h3>📁 Folder structure</h3>
+      <div class="dep-step">
+        <div class="step-t" style="font-family:'Cormorant Garamond',serif;font-size:.88rem;color:rgba(245,234,214,.58);line-height:1.8">
+          <code>sometimesabaker/</code><br>
+          &nbsp;&nbsp;<code>index.html</code> ← this file<br>
+          &nbsp;&nbsp;<code>manifest.json</code> + <code>sw.js</code><br>
+          &nbsp;&nbsp;<code>recipes.json</code> ← catalog<br>
+          &nbsp;&nbsp;<code>recipes/</code> ← drop .html cards here
+        </div>
+      </div>
+    </div>
+
+    <div class="dep-section">
+      <h3>🚀 Option A — GitHub Pages (recommended)</h3>
+      <div class="dep-step"><div class="step-n">1</div><div class="step-t">Create a repo named <code>sometimesabaker</code>, upload this folder.</div></div>
+      <div class="dep-step"><div class="step-n">2</div><div class="step-t">Settings → Pages → Source: <code>main</code> branch, root. Save.</div></div>
+      <div class="dep-step"><div class="step-n">3</div><div class="step-t">Live at <code>yourusername.github.io/sometimesabaker</code> in ~1 min.</div></div>
+      <div class="dep-note">iPhone: Safari → Share → "Add to Home Screen" = real app icon.</div>
+    </div>
+
+    <div class="dep-section">
+      <h3>⚡ Option B — Netlify (drag & drop)</h3>
+      <div class="dep-step"><div class="step-n">1</div><div class="step-t">Go to <code>netlify.com</code>, drag your project folder onto the dashboard. Done.</div></div>
+    </div>
+
+    <div class="dep-section">
+      <h3>🔑 API key security for public URLs</h3>
+      <div class="step-t" style="font-size:.81rem;color:rgba(245,234,214,.62);line-height:1.6;margin-bottom:.7rem">
+        Personal / local: localStorage is fine.<br>
+        Public URL: wrap the key in a <strong style="color:var(--cream)">Netlify Function</strong> and change <code>API_ENDPOINT</code> to <code>/.netlify/functions/claude</code>.
+      </div>
+      <div class="dep-note">Netlify Functions free tier: 125k req/month — plenty for personal use.</div>
+    </div>
+
+    <div class="dep-section">
+      <h3>📋 Adding new cards</h3>
+      <div class="dep-step"><div class="step-n">1</div><div class="step-t">Drop the generated <code>.html</code> file into <code>recipes/</code>.</div></div>
+      <div class="dep-step"><div class="step-n">2</div><div class="step-t">Add one entry to <code>recipes.json</code> (title, category, tags, filename, swatch).</div></div>
+      <div class="dep-step"><div class="step-n">3</div><div class="step-t">Commit / push (GitHub) or re-drag (Netlify) — grid updates automatically.</div></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="dlRecipesJson" style="flex:1;justify-content:center">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download recipes.json
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════════
+   API CONFIGURATION
+   ════════════════════════════════════════════════════════
+
+   MODEL: claude-sonnet-4-6  (hardcoded — ~$0.08/card)
+
+   To set your key:
+     Option A (recommended) — click the "Key" button in the
+       header, paste your sk-ant-… key, hit Save. Stored in
+       localStorage; auto-loaded on every generation.
+
+     Option B (local dev only) — paste your key below:
+       const HARDCODED_KEY = 'sk-ant-YOUR-KEY-HERE';
+       ⚠  NEVER commit a real key to a public repo.
+
+   Get a key at: https://console.anthropic.com/settings/keys
+   ════════════════════════════════════════════════════════ */
+
+const HARDCODED_KEY  = '';                                    // ← local dev only
+const API_ENDPOINT   = 'https://api.anthropic.com/v1/messages';
+const MODEL          = 'claude-sonnet-4-6';                   // hardcoded — do not change
+const STORAGE_KEY    = 'sab_anthropic_key';
+
+/* ════════════════════════════════════════════════════════
+   RECIPE CATALOG
+   Add one entry per card you drop into recipes/
+   ════════════════════════════════════════════════════════ */
+const RECIPES = [
+  {
+    id: 1,
+    title: "Sourdough Marble Rye",
+    category: "sourdough",
+    tags: ["sourdough", "rye", "bread"],
+    time: "2 days",
+    filename: "recipes/sourdough_marble_rye.html",
+    swatch: "linear-gradient(90deg,#4a3018,#8b6340)"
+  },
+  {
+    id: 2,
+    title: "Memphis Pulled Pork Sliders",
+    category: "savory",
+    tags: ["bbq", "pork", "sandwich"],
+    time: "8 hrs",
+    filename: "recipes/memphis-pulled-pork-sliders.html",
+    swatch: "linear-gradient(90deg,#7a1f0a,#c8500e)"
+  },
+  {
+    id: 3,
+    title: "Steak Frites",
+    category: "savory",
+    tags: ["steak", "frites", "french"],
+    time: "45 min",
+    filename: "recipes/steak-frites.html",
+    swatch: "linear-gradient(90deg,#2a1e0e,#8b5e2a)"
+  },
+  {
+    id: 4,
+    title: "Soft & Thick Snickerdoodles",
+    category: "sweet",
+    tags: ["cookies", "cinnamon", "classic"],
+    time: "30 min",
+    filename: "recipes/Soft___Thick_Snickerdoodles_Recipe.html",
+    swatch: "linear-gradient(90deg,#8b5e0a,#d4a017)"
+  },
+  {
+    id: 5,
+    title: "French Bread (Bread Machine)",
+    category: "bread",
+    tags: ["bread", "french", "machine"],
+    time: "3.5 hrs",
+    filename: "recipes/french_bread_bread_machine.html",
+    swatch: "linear-gradient(90deg,#5c4020,#c8a060)"
+  }
+];
+
+/* ════════════════════════════════════════════════════════
+   SYSTEM PROMPT  — edit to change house style
+   ════════════════════════════════════════════════════════ */
+function systemPrompt() {
+  return `You are the recipe card generator for #SometimesaBaker — a personal cookbook brand.
+Brand: precise, from-scratch, metric-first. Tagline: "From Scratch · By Weight".
+Equipment: KitchenAid Artisan stand mixer, standard home oven.
+Sourdough: 100% hydration starter, always called "starter".
+
+Output ONLY a complete standalone HTML file.
+No markdown, no explanation, no code fences.
+Start with <!DOCTYPE html> and end with </html>. Nothing before or after.
+
+Required features:
+- Dark theme: background #1a1208, gold #d4a017, amber #c8860a, cream #f5ead6
+- Google Fonts: Playfair Display (headings), Libre Baskerville (body), Oswald (labels)
+- ALL measurements in metric (grams, ml) — no cups, oz, or lb
+- Interactive serving scaler that recalculates all weights
+- Countdown timer per timed step: pause / resume / reset, audio beep on completion
+- Per-serving macro panel: calories, protein, carbs, fat
+- Source attribution
+- Brand header: #SometimesaBaker · "From Scratch · By Weight"
+- Fully responsive, mobile-friendly`;
+}
+
+function userPrompt(name, category, notes) {
+  const catNote = {
+    sourdough: 'Sourdough — use 100% hydration starter, adjust for home baker timing.',
+    bread: 'For KitchenAid Artisan stand mixer.',
+    pastry: 'For KitchenAid Artisan stand mixer.',
+    sweet: 'For KitchenAid Artisan stand mixer.',
+    savory: ''
+  }[category] || '';
+  return [
+    `Research a well-tested recipe for: ${name}`,
+    catNote,
+    notes ? `Baker's notes: ${notes}` : '',
+    'Generate the complete #SometimesaBaker HTML card now.'
+  ].filter(Boolean).join('\n\n');
+}
+
+/* ── STATE ── */
+let activeFilter   = 'all';
+let searchQuery    = '';
+let generatedHTML  = '';
+let generatedTitle = '';
+let abort          = null;
+
+/* ── KEY HELPERS ── */
+const getKey  = () => HARDCODED_KEY || localStorage.getItem(STORAGE_KEY) || '';
+const hasKey  = () => !!getKey();
+
+function refreshKeyUI() {
+  const key  = getKey();
+  const banner  = document.getElementById('keyBanner');
+  const dot     = document.getElementById('keyDot');
+  const status  = document.getElementById('keyStatusText');
+  const hint    = document.getElementById('formHint');
+  const btnLbl  = document.getElementById('genBtnLabel');
+  const keyInp  = document.getElementById('apiKeyInput');
+  if (key) {
+    banner.classList.add('hidden');
+    dot.className = 'k-dot set';
+    status.textContent = 'Key saved (' + key.slice(0,12) + '…)';
+    if (hint)   hint.textContent   = 'Claude will generate a complete HTML card automatically.';
+    if (btnLbl) btnLbl.textContent = 'Generate Card';
+  } else {
+    banner.classList.remove('hidden');
+    dot.className = 'k-dot unset';
+    status.textContent = 'No key saved';
+    if (hint)   hint.textContent   = 'No API key — a copy-paste prompt will be generated instead.';
+    if (btnLbl) btnLbl.textContent = 'Build Prompt';
+  }
+  if (keyInp && key) keyInp.value = key;
+}
+
+/* ── GRID ── */
+const CAT_LABEL = { sourdough:'Sourdough', bread:'Bread', pastry:'Pastry', sweet:'Sweets & Baking', savory:'Savory' };
+
+function renderGrid() {
+  const grid  = document.getElementById('recipeGrid');
+  const count = document.getElementById('gridCount');
+  const q = searchQuery.toLowerCase();
+  const list = RECIPES.filter(r => {
+    const mf = activeFilter === 'all' || r.category === activeFilter || r.tags.includes(activeFilter);
+    const ms = !q || r.title.toLowerCase().includes(q) || r.tags.some(t => t.includes(q)) || r.category.includes(q);
+    return mf && ms;
+  });
+  count.textContent = `${list.length} recipe${list.length !== 1 ? 's' : ''}`;
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🥣</div><h3>Nothing found</h3><p>Try a different search or research a new recipe.</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map((r, i) => `
+    <a class="recipe-card" href="${r.filename}" style="animation-delay:${i*.05}s">
+      <div class="card-swatch" style="background:${r.swatch}"></div>
+      <div class="card-body">
+        <div class="card-cat">${CAT_LABEL[r.category]||r.category}</div>
+        <div class="card-title">${r.title}</div>
+        <div class="card-tags">${r.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="card-foot">
+        <span class="card-time">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${r.time}
+        </span>
+        <span class="card-open">Open <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+      </div>
+    </a>`).join('');
+}
+
+/* ── STREAMING API ── */
+async function generateCard(name, category, notes) {
+  const key = getKey();
+  if (!key) throw new Error('No API key.');
+  abort = new AbortController();
+
+  const res = await fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 8000,
+      stream: true,
+      system: systemPrompt(),
+      messages: [{ role: 'user', content: userPrompt(name, category, notes) }]
+    }),
+    signal: abort.signal
+  });
+
+  if (!res.ok) {
+    const e = await res.json().catch(()=>({}));
+    if (res.status === 401) throw new Error('Invalid API key. Check console.anthropic.com.');
+    if (res.status === 429) throw new Error('Rate limited — wait a moment and try again.');
+    throw new Error(e?.error?.message || `HTTP ${res.status}`);
+  }
+
+  const reader  = res.body.getReader();
+  const decoder = new TextDecoder();
+  let full = '', chars = 0;
+
+  const msgEl   = document.getElementById('genMsg');
+  const charEl  = document.getElementById('genChars');
+  const steps   = ['Researching the recipe…','Sourcing ingredient ratios…','Converting to metric weights…','Building the HTML card…','Writing timers and scaler…','Polishing the layout…','Almost done…'];
+  let si = 0;
+  const ticker = setInterval(() => { if (si < steps.length-1) si++; if (msgEl) msgEl.textContent = steps[si]; }, 4000);
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      for (const line of decoder.decode(value, { stream:true }).split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (raw === '[DONE]') break;
+        try {
+          const p = JSON.parse(raw);
+          if (p.type === 'content_block_delta' && p.delta?.type === 'text_delta') {
+            full  += p.delta.text;
+            chars += p.delta.text.length;
+            if (charEl) charEl.textContent = `${chars.toLocaleString()} chars…`;
+          }
+        } catch {}
+      }
+    }
+  } finally { clearInterval(ticker); }
+
+  const cleaned = full.replace(/^```html\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```\s*$/i,'').trim();
+  if (!cleaned.includes('<!DOCTYPE') && !cleaned.includes('<html'))
+    throw new Error('Response was not valid HTML — try again.');
+  return cleaned;
+}
+
+/* ── PHASE SWITCHER ── */
+function phase(id) {
+  ['gpGenerating','gpDone','gpError'].forEach(x => document.getElementById(x)?.classList.remove('active'));
+  document.getElementById('fallback')?.classList.remove('on');
+  if (id) document.getElementById(id)?.classList.add('active');
+}
+
+/* ── SAVE TO COLLECTION ── */
+function saveToCollection(name, category) {
+  if (!generatedHTML) return;
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const swatches = { sourdough:'linear-gradient(90deg,#4a3018,#8b6340)', bread:'linear-gradient(90deg,#5c4020,#c8a060)', pastry:'linear-gradient(90deg,#3a2060,#8060c0)', sweet:'linear-gradient(90deg,#8b5e0a,#d4a017)', savory:'linear-gradient(90deg,#2a1e0e,#8b5e2a)' };
+  RECIPES.push({ id:RECIPES.length+1, title:name, category:category||'savory', tags:[category||'savory'], time:'?', filename:`recipes/${slug}.html`, swatch:swatches[category]||swatches.savory });
+  renderGrid();
+  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(new Blob([generatedHTML],{type:'text/html'})), download:`${slug}.html` });
+  a.click();
+  closeAll();
+  toast(`"${name}" added. Drop the downloaded file into your recipes/ folder.`);
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#2a1e0e;border:1px solid rgba(212,160,23,.35);border-radius:10px;padding:.72rem 1.2rem;font-size:.8rem;color:var(--cream);z-index:9999;max-width:90vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.5)';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 5000);
+}
+
+/* ── MODAL HELPERS ── */
+const openM  = id => document.getElementById(id)?.classList.add('open');
+const closeM = id => document.getElementById(id)?.classList.remove('open');
+function closeAll() {
+  ['newRecipeModal','keyModal','deployModal'].forEach(closeM);
+  document.getElementById('previewOverlay')?.classList.remove('open');
+}
+function resetNewRecipe() {
+  phase(null);
+  ['recipeName','recipeNotes'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('recipeCategory').value = '';
+  generatedHTML = ''; generatedTitle = '';
+}
+
+/* ── WIRE UP ── */
+
+// chips
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', ()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active'); activeFilter = c.dataset.filter; renderGrid();
+}));
+
+// search
+document.getElementById('searchInput').addEventListener('input', e=>{ searchQuery = e.target.value; renderGrid(); });
+
+// key modal
+['keyBtn','bannerKeyBtn'].forEach(id => document.getElementById(id).addEventListener('click', ()=>openM('keyModal')));
+document.getElementById('closeKeyModal').addEventListener('click', ()=>closeM('keyModal'));
+document.getElementById('keyModal').addEventListener('click', e=>{ if(e.target.id==='keyModal') closeM('keyModal'); });
+document.getElementById('saveKeyBtn').addEventListener('click', ()=>{
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (!v) return;
+  if (!v.startsWith('sk-')) {
+    document.getElementById('keyDot').className = 'k-dot err';
+    document.getElementById('keyStatusText').textContent = "Doesn't look valid — should start with sk-ant-";
+    return;
+  }
+  localStorage.setItem(STORAGE_KEY, v);
+  refreshKeyUI(); closeM('keyModal'); toast('API key saved — ready to generate cards!');
+});
+document.getElementById('clearKeyBtn').addEventListener('click', ()=>{
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('apiKeyInput').value = '';
+  refreshKeyUI();
+});
+
+// new recipe modal
+document.getElementById('newRecipeBtn').addEventListener('click', ()=>{ resetNewRecipe(); refreshKeyUI(); openM('newRecipeModal'); document.getElementById('recipeName').focus(); });
+['closeNewRecipe','cancelNewRecipe'].forEach(id => document.getElementById(id).addEventListener('click', ()=>{ abort?.abort(); closeM('newRecipeModal'); }));
+document.getElementById('newRecipeModal').addEventListener('click', e=>{ if(e.target.id==='newRecipeModal'){ abort?.abort(); closeM('newRecipeModal'); } });
+document.getElementById('cancelGenBtn').addEventListener('click', ()=>{ abort?.abort(); phase(null); });
+document.getElementById('retryBtn').addEventListener('click', ()=>phase(null));
+
+// generate
+document.getElementById('generateBtn').addEventListener('click', async ()=>{
+  const name     = document.getElementById('recipeName').value.trim();
+  const category = document.getElementById('recipeCategory').value;
+  const notes    = document.getElementById('recipeNotes').value.trim();
+  if (!name) { document.getElementById('recipeName').focus(); return; }
+
+  if (!hasKey()) {
+    const cn = { sourdough:'Use my 100% hydration sourdough starter.', bread:'For KitchenAid Artisan stand mixer.', pastry:'For KitchenAid Artisan stand mixer.', sweet:'For KitchenAid Artisan stand mixer.', savory:'' }[category]||'';
+    const p = [`Search for a well-tested recipe for **${name}**.`,'Convert all measurements to metric weight (grams / ml).',cn,notes?`Notes: ${notes}`:'','Create a branded #SometimesaBaker HTML recipe card with:','- Interactive serving scaler','- Countdown timers with pause / resume / reset and audio alert','- Per-serving macro nutrition panel','- Source attribution','- "From Scratch · By Weight" branding'].filter(Boolean).join('\n');
+    document.getElementById('fallbackText').textContent = p;
+    document.getElementById('fallback').classList.add('on');
+    return;
+  }
+
+  generatedTitle = name;
+  phase('gpGenerating');
+  document.getElementById('genMsg').textContent  = 'Researching recipe…';
+  document.getElementById('genChars').textContent = '';
+
+  try {
+    generatedHTML = await generateCard(name, category, notes);
+    document.getElementById('doneTitle').textContent = `"${name}" is ready!`;
+    document.getElementById('doneMeta').textContent  = `${generatedHTML.length.toLocaleString()} chars · complete HTML card`;
+    phase('gpDone');
+  } catch(err) {
+    if (err.name === 'AbortError') { phase(null); return; }
+    document.getElementById('errMsg').textContent = err.message;
+    phase('gpError');
+  }
+});
+
+// copy prompt
+document.getElementById('copyPromptBtn').addEventListener('click', ()=>{
+  navigator.clipboard.writeText(document.getElementById('fallbackText').textContent).then(()=>{
+    const b = document.getElementById('copyPromptBtn');
+    b.textContent = '✓ Copied!';
+    setTimeout(()=>{ b.textContent = 'Copy Prompt'; }, 2000);
+  });
+});
+
+// preview
+document.getElementById('previewBtn').addEventListener('click', ()=>{
+  if (!generatedHTML) return;
+  document.getElementById('previewFrame').src = URL.createObjectURL(new Blob([generatedHTML],{type:'text/html'}));
+  document.getElementById('previewTitle').textContent = generatedTitle;
+  document.getElementById('previewOverlay').classList.add('open');
+});
+document.getElementById('closePreview').addEventListener('click', ()=>document.getElementById('previewOverlay').classList.remove('open'));
+document.getElementById('previewSaveBtn').addEventListener('click', ()=>saveToCollection(document.getElementById('recipeName').value.trim(), document.getElementById('recipeCategory').value));
+
+// save / download
+document.getElementById('saveCardBtn').addEventListener('click', ()=>saveToCollection(document.getElementById('recipeName').value.trim(), document.getElementById('recipeCategory').value));
+document.getElementById('dlCardBtn').addEventListener('click', ()=>{
+  if (!generatedHTML) return;
+  Object.assign(document.createElement('a'),{ href:URL.createObjectURL(new Blob([generatedHTML],{type:'text/html'})), download:`${generatedTitle.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.html` }).click();
+});
+
+// deploy modal
+document.getElementById('deployBtn').addEventListener('click', ()=>openM('deployModal'));
+document.getElementById('closeDeployModal').addEventListener('click', ()=>closeM('deployModal'));
+document.getElementById('deployModal').addEventListener('click', e=>{ if(e.target.id==='deployModal') closeM('deployModal'); });
+
+// download recipes.json
+document.getElementById('dlRecipesJson').addEventListener('click', ()=>{
+  Object.assign(document.createElement('a'),{ href:URL.createObjectURL(new Blob([JSON.stringify(RECIPES,null,2)],{type:'application/json'})), download:'recipes.json' }).click();
+});
+
+// service worker
+if ('serviceWorker' in navigator)
+  window.addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+
+// init
+refreshKeyUI();
+renderGrid();
+</script>
+</body>
+</html>
