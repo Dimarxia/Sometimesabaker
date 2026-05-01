@@ -49,19 +49,6 @@ body{
   overflow-x:hidden;
 }
 
-/* ── KEY BANNER ── */
-.key-banner{
-  background:linear-gradient(90deg,rgba(200,134,10,.15),rgba(224,120,32,.1));
-  border-bottom:1px solid rgba(200,134,10,.35);
-  padding:.55rem 1.5rem;
-  display:flex;align-items:center;justify-content:center;gap:.7rem;
-  font-size:.78rem;color:rgba(245,234,214,.75);flex-wrap:wrap;text-align:center;
-}
-.key-banner.hidden{display:none}
-.key-banner strong{color:var(--gold)}
-.key-banner button{color:var(--amber);text-decoration:underline;cursor:pointer;background:none;border:none;font:inherit;padding:0}
-.key-banner button:hover{color:var(--gold)}
-
 /* ── HEADER ── */
 .site-header{
   position:sticky;top:0;z-index:100;
@@ -184,18 +171,6 @@ body{
 .modal-actions{display:flex;gap:.7rem;margin-top:1.65rem}
 .modal-actions .btn{flex:1;justify-content:center;padding:.72rem;font-size:.86rem}
 
-/* ── KEY MODAL ── */
-.key-note{background:rgba(200,134,10,.08);border:1px solid rgba(200,134,10,.2);border-radius:8px;padding:.85rem 1rem;font-size:.8rem;color:rgba(245,234,214,.62);line-height:1.6;margin-bottom:1.2rem}
-.key-note strong{color:var(--amber)}
-.key-note code{background:rgba(255,255,255,.08);padding:.1rem .38rem;border-radius:4px;font-size:.77rem;color:var(--amber)}
-.key-warn{background:var(--warn-bg);border:1px solid rgba(224,80,80,.25);border-radius:8px;padding:.7rem 1rem;font-size:.76rem;color:rgba(224,180,180,.85);line-height:1.55;margin-top:.7rem}
-.key-warn strong{color:var(--warn)}
-.key-status{display:flex;align-items:center;gap:.48rem;font-size:.76rem;padding:.48rem 0;margin-top:.45rem}
-.k-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.k-dot.set{background:var(--ok);box-shadow:0 0 5px rgba(90,170,96,.5)}
-.k-dot.unset{background:rgba(245,234,214,.18)}
-.k-dot.err{background:var(--warn);box-shadow:0 0 5px rgba(224,80,80,.5)}
-
 /* ── GEN PHASES ── */
 .gp{display:none}
 .gp.active{display:block}
@@ -225,15 +200,6 @@ body{
 .preview-bar-actions{display:flex;gap:.45rem}
 .preview-frame{flex:1;width:100%;border:none;background:#fff}
 
-/* ── DEPLOY MODAL ── */
-.dep-section{margin-bottom:1.4rem}
-.dep-section h3{font-family:'Playfair Display',serif;font-size:.97rem;font-style:italic;color:var(--gold);margin-bottom:.55rem;display:flex;align-items:center;gap:.4rem}
-.dep-step{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:.55rem}
-.step-n{flex-shrink:0;width:21px;height:21px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--flame));color:var(--ink);font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center}
-.step-t{font-size:.83rem;color:rgba(245,234,214,.72);line-height:1.5}
-.step-t code{background:rgba(255,255,255,.08);padding:.1rem .38rem;border-radius:4px;font-size:.77rem;color:var(--amber)}
-.dep-note{font-size:.76rem;color:rgba(245,234,214,.42);font-style:italic;padding:.7rem 1rem;background:rgba(255,255,255,.03);border-left:2px solid var(--amber);border-radius:0 6px 6px 0;margin-top:.45rem}
-
 /* ── SPINNER ── */
 .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(200,134,10,.28);border-top-color:var(--amber);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
@@ -252,12 +218,7 @@ body{
 </head>
 <body>
 
-<!-- ═══ API KEY BANNER ═══ -->
-<div class="key-banner" id="keyBanner">
-  <strong>⚡ No API key set.</strong>
-  Generation will produce a copy-paste prompt instead of a live card.
-  <button id="bannerKeyBtn">Set your key →</button>
-</div>
+<!-- key banner removed — API key lives in docker-compose.yml on the QNAP -->
 
 <!-- ═══ HEADER ═══ -->
 <header class="site-header">
@@ -266,14 +227,6 @@ body{
     <div class="brand-sub">From Scratch · By Weight</div>
   </div>
   <div class="header-actions">
-    <button class="btn btn-ghost" id="keyBtn" title="API key">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-      Key
-    </button>
-    <button class="btn btn-ghost" id="deployBtn">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 17 21 12 16 7"/><polyline points="8 7 3 12 8 17"/></svg>
-      Deploy
-    </button>
     <button class="btn btn-primary" id="newRecipeBtn">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       New Recipe
@@ -320,40 +273,7 @@ body{
 </footer>
 
 
-<!-- ═══════════════════════════════════════════
-     API KEY MODAL
-═══════════════════════════════════════════ -->
-<div class="modal-overlay" id="keyModal">
-  <div class="modal">
-    <div class="modal-hdr">
-      <h2 class="modal-title">API Key</h2>
-      <button class="modal-x" id="closeKeyModal">&times;</button>
-    </div>
-    <div class="key-note">
-      Get your key at <strong>console.anthropic.com → API Keys</strong>.<br>
-      Stored in <strong>localStorage</strong> — only ever sent to <code>api.anthropic.com</code>.
-    </div>
-    <div class="modal-field">
-      <label>Anthropic API Key</label>
-      <input type="password" class="modal-input" id="apiKeyInput" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
-      <div class="key-status" id="keyStatusRow">
-        <div class="k-dot unset" id="keyDot"></div>
-        <span id="keyStatusText">No key saved</span>
-      </div>
-    </div>
-    <div class="key-warn">
-      <strong>⚠ Security note</strong>
-      For personal / local use, localStorage is fine. If this URL is public, proxy the key through a serverless function — see the Deploy guide.
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-danger" id="clearKeyBtn">Clear</button>
-      <button class="btn btn-primary" id="saveKeyBtn" style="flex:2">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Save Key
-      </button>
-    </div>
-  </div>
-</div>
+<!-- key modal removed — key lives in docker-compose.yml -->
 
 
 <!-- ═══════════════════════════════════════════
@@ -468,66 +388,7 @@ body{
 </div>
 
 
-<!-- ═══════════════════════════════════════════
-     DEPLOY GUIDE MODAL
-═══════════════════════════════════════════ -->
-<div class="modal-overlay" id="deployModal">
-  <div class="modal" style="max-width:700px">
-    <div class="modal-hdr">
-      <h2 class="modal-title">Deploy Your App</h2>
-      <button class="modal-x" id="closeDeployModal">&times;</button>
-    </div>
 
-    <div class="dep-section">
-      <h3>📁 Folder structure</h3>
-      <div class="dep-step">
-        <div class="step-t" style="font-family:'Cormorant Garamond',serif;font-size:.88rem;color:rgba(245,234,214,.58);line-height:1.8">
-          <code>sometimesabaker/</code><br>
-          &nbsp;&nbsp;<code>index.html</code> ← this file<br>
-          &nbsp;&nbsp;<code>manifest.json</code> + <code>sw.js</code><br>
-          &nbsp;&nbsp;<code>recipes.json</code> ← catalog<br>
-          &nbsp;&nbsp;<code>recipes/</code> ← drop .html cards here
-        </div>
-      </div>
-    </div>
-
-    <div class="dep-section">
-      <h3>🚀 Option A — GitHub Pages (recommended)</h3>
-      <div class="dep-step"><div class="step-n">1</div><div class="step-t">Create a repo named <code>sometimesabaker</code>, upload this folder.</div></div>
-      <div class="dep-step"><div class="step-n">2</div><div class="step-t">Settings → Pages → Source: <code>main</code> branch, root. Save.</div></div>
-      <div class="dep-step"><div class="step-n">3</div><div class="step-t">Live at <code>yourusername.github.io/sometimesabaker</code> in ~1 min.</div></div>
-      <div class="dep-note">iPhone: Safari → Share → "Add to Home Screen" = real app icon.</div>
-    </div>
-
-    <div class="dep-section">
-      <h3>⚡ Option B — Netlify (drag & drop)</h3>
-      <div class="dep-step"><div class="step-n">1</div><div class="step-t">Go to <code>netlify.com</code>, drag your project folder onto the dashboard. Done.</div></div>
-    </div>
-
-    <div class="dep-section">
-      <h3>🔑 API key security for public URLs</h3>
-      <div class="step-t" style="font-size:.81rem;color:rgba(245,234,214,.62);line-height:1.6;margin-bottom:.7rem">
-        Personal / local: localStorage is fine.<br>
-        Public URL: wrap the key in a <strong style="color:var(--cream)">Netlify Function</strong> and change <code>API_ENDPOINT</code> to <code>/.netlify/functions/claude</code>.
-      </div>
-      <div class="dep-note">Netlify Functions free tier: 125k req/month — plenty for personal use.</div>
-    </div>
-
-    <div class="dep-section">
-      <h3>📋 Adding new cards</h3>
-      <div class="dep-step"><div class="step-n">1</div><div class="step-t">Drop the generated <code>.html</code> file into <code>recipes/</code>.</div></div>
-      <div class="dep-step"><div class="step-n">2</div><div class="step-t">Add one entry to <code>recipes.json</code> (title, category, tags, filename, swatch).</div></div>
-      <div class="dep-step"><div class="step-n">3</div><div class="step-t">Commit / push (GitHub) or re-drag (Netlify) — grid updates automatically.</div></div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn btn-primary" id="dlRecipesJson" style="flex:1;justify-content:center">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download recipes.json
-      </button>
-    </div>
-  </div>
-</div>
 
 
 <!-- ═══════════════════════════════════════════
@@ -537,31 +398,39 @@ body{
 'use strict';
 
 /* ════════════════════════════════════════════════════════
-   API CONFIGURATION
+   CONFIGURATION — GitHub Pages + QNAP Tailscale
    ════════════════════════════════════════════════════════
 
-   MODEL: claude-sonnet-4-6  (hardcoded — ~$0.08/card)
+   This file lives on GitHub Pages (static, installable PWA).
+   All API calls and card storage go to your QNAP over Tailscale.
 
-   To set your key:
-     Option A (recommended) — click the "Key" button in the
-       header, paste your sk-ant-… key, hit Save. Stored in
-       localStorage; auto-loaded on every generation.
+   ▼▼▼  SET THESE TWO URLS TO YOUR QNAP TAILSCALE IP  ▼▼▼  */
 
-     Option B (local dev only) — paste your key below:
-       const HARDCODED_KEY = 'sk-ant-YOUR-KEY-HERE';
-       ⚠  NEVER commit a real key to a public repo.
+const BRAIN_URL = 'http://100.78.142.106:3000';
+//                      ↑ replace with your QNAP Tailscale IP
+//  Brain = Node proxy + Claude API + card writer (port 3000)
+//  Find your Tailscale IP: https://login.tailscale.com/admin/machines
 
-   Get a key at: https://console.anthropic.com/settings/keys
+const SHELF_URL = 'http://100.78.142.106:3001';
+//                      ↑ same IP, different port
+//  Shelf = nginx serving finished recipe HTML files (port 3001)
+
+/* ▲▲▲  both containers run on the same QNAP, different ports  ▲▲▲
+
+   MODEL: claude-sonnet-4-6 (hardcoded — ~$0.08/card)
+   API key lives in docker-compose.yml on the QNAP — never here.
    ════════════════════════════════════════════════════════ */
 
-const HARDCODED_KEY  = '';                                    // ← local dev only
-const API_ENDPOINT   = 'https://api.anthropic.com/v1/messages';
-const MODEL          = 'claude-sonnet-4-6';                   // hardcoded — do not change
-const STORAGE_KEY    = 'sab_anthropic_key';
+const API_ENDPOINT  = `${BRAIN_URL}/api/claude`;
+const MODEL         = 'claude-sonnet-4-6';
+const STORAGE_KEY   = 'sab_anthropic_key';
+const HARDCODED_KEY = '';
 
 /* ════════════════════════════════════════════════════════
    RECIPE CATALOG
-   Add one entry per card you drop into recipes/
+   Base entries use full shelf URLs so card links work from
+   GitHub Pages. Update the IP to match your QNAP Tailscale IP.
+   User-generated cards are added automatically by saveToCollection.
    ════════════════════════════════════════════════════════ */
 const RECIPES = [
   {
@@ -570,7 +439,7 @@ const RECIPES = [
     category: "sourdough",
     tags: ["sourdough", "rye", "bread"],
     time: "2 days",
-    filename: "recipes/sourdough_marble_rye.html",
+    filename: `${SHELF_URL}/recipes/sourdough_marble_rye.html`,
     swatch: "linear-gradient(90deg,#4a3018,#8b6340)"
   },
   {
@@ -579,7 +448,7 @@ const RECIPES = [
     category: "savory",
     tags: ["bbq", "pork", "sandwich"],
     time: "8 hrs",
-    filename: "recipes/memphis-pulled-pork-sliders.html",
+    filename: `${SHELF_URL}/recipes/memphis-pulled-pork-sliders.html`,
     swatch: "linear-gradient(90deg,#7a1f0a,#c8500e)"
   },
   {
@@ -588,7 +457,7 @@ const RECIPES = [
     category: "savory",
     tags: ["steak", "frites", "french"],
     time: "45 min",
-    filename: "recipes/steak-frites.html",
+    filename: `${SHELF_URL}/recipes/steak-frites.html`,
     swatch: "linear-gradient(90deg,#2a1e0e,#8b5e2a)"
   },
   {
@@ -597,7 +466,7 @@ const RECIPES = [
     category: "sweet",
     tags: ["cookies", "cinnamon", "classic"],
     time: "30 min",
-    filename: "recipes/Soft___Thick_Snickerdoodles_Recipe.html",
+    filename: `${SHELF_URL}/recipes/soft-thick-snickerdoodles.html`,
     swatch: "linear-gradient(90deg,#8b5e0a,#d4a017)"
   },
   {
@@ -606,7 +475,7 @@ const RECIPES = [
     category: "bread",
     tags: ["bread", "french", "machine"],
     time: "3.5 hrs",
-    filename: "recipes/french_bread_bread_machine.html",
+    filename: `${SHELF_URL}/recipes/french-bread-bread-machine.html`,
     swatch: "linear-gradient(90deg,#5c4020,#c8a060)"
   }
 ];
@@ -624,16 +493,33 @@ Output ONLY a complete standalone HTML file.
 No markdown, no explanation, no code fences.
 Start with <!DOCTYPE html> and end with </html>. Nothing before or after.
 
-Required features:
+The card MUST contain ALL of the following sections in order:
+
+1. BRAND HEADER — #SometimesaBaker · "From Scratch · By Weight"
+
+2. RECIPE TITLE & META — name, yield, total time, difficulty
+
+3. INGREDIENTS — all weights in grams/ml, grouped by component if needed.
+   Include an interactive serving scaler (input or +/- buttons) that
+   recalculates every ingredient amount proportionally.
+
+4. PROCEDURE — numbered step-by-step method. Every step that involves
+   waiting, resting, baking, proofing, or cooking must have an inline
+   countdown timer with pause / resume / reset controls and an audio
+   beep on completion. Steps must be detailed — not just "bake until done".
+
+5. NUTRITION — per-serving panel showing calories, protein, carbs, fat.
+   Calculate based on standard ingredient data.
+
+6. SOURCE & ATTRIBUTION — the original recipe source this was adapted from.
+   Include: source name, URL if known, and a note that it has been adapted
+   to metric weights for #SometimesaBaker. This section is REQUIRED — never omit it.
+
+Visual requirements:
 - Dark theme: background #1a1208, gold #d4a017, amber #c8860a, cream #f5ead6
 - Google Fonts: Playfair Display (headings), Libre Baskerville (body), Oswald (labels)
-- ALL measurements in metric (grams, ml) — no cups, oz, or lb
-- Interactive serving scaler that recalculates all weights
-- Countdown timer per timed step: pause / resume / reset, audio beep on completion
-- Per-serving macro panel: calories, protein, carbs, fat
-- Source attribution
-- Brand header: #SometimesaBaker · "From Scratch · By Weight"
-- Fully responsive, mobile-friendly`;
+- ALL measurements in metric (grams, ml) — absolutely no cups, oz, tbsp, or lb
+- Fully responsive, mobile-friendly layout`;
 }
 
 function userPrompt(name, category, notes) {
@@ -659,32 +545,26 @@ let generatedHTML  = '';
 let generatedTitle = '';
 let abort          = null;
 
-/* ── KEY HELPERS ── */
-const getKey  = () => HARDCODED_KEY || localStorage.getItem(STORAGE_KEY) || '';
-const hasKey  = () => !!getKey();
+/* ════════════════════════════════════════════════════════
+   CATALOG PERSISTENCE
+   Generated cards are saved to localStorage so the grid
+   survives page reloads. The hardcoded RECIPES array above
+   is the permanent base; user-generated cards layer on top.
+   ════════════════════════════════════════════════════════ */
+const CATALOG_KEY = 'sab_catalog';
 
-function refreshKeyUI() {
-  const key  = getKey();
-  const banner  = document.getElementById('keyBanner');
-  const dot     = document.getElementById('keyDot');
-  const status  = document.getElementById('keyStatusText');
-  const hint    = document.getElementById('formHint');
-  const btnLbl  = document.getElementById('genBtnLabel');
-  const keyInp  = document.getElementById('apiKeyInput');
-  if (key) {
-    banner.classList.add('hidden');
-    dot.className = 'k-dot set';
-    status.textContent = 'Key saved (' + key.slice(0,12) + '…)';
-    if (hint)   hint.textContent   = 'Claude will generate a complete HTML card automatically.';
-    if (btnLbl) btnLbl.textContent = 'Generate Card';
-  } else {
-    banner.classList.remove('hidden');
-    dot.className = 'k-dot unset';
-    status.textContent = 'No key saved';
-    if (hint)   hint.textContent   = 'No API key — a copy-paste prompt will be generated instead.';
-    if (btnLbl) btnLbl.textContent = 'Build Prompt';
-  }
-  if (keyInp && key) keyInp.value = key;
+function loadCatalog() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CATALOG_KEY) || '[]');
+    const existing = new Set(RECIPES.map(r => r.filename));
+    saved.forEach(r => { if (!existing.has(r.filename)) RECIPES.push(r); });
+  } catch {}
+}
+
+function persistCatalog() {
+  // Only persist user-generated entries (ids beyond the hardcoded base)
+  const userCards = RECIPES.filter(r => r.id > 5);
+  try { localStorage.setItem(CATALOG_KEY, JSON.stringify(userCards)); } catch {}
 }
 
 /* ── GRID ── */
@@ -724,17 +604,13 @@ function renderGrid() {
 
 /* ── STREAMING API ── */
 async function generateCard(name, category, notes) {
-  const key = getKey();
-  if (!key) throw new Error('No API key.');
   abort = new AbortController();
 
   const res = await fetch(API_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': key,
       'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
     },
     body: JSON.stringify({
       model: MODEL,
@@ -797,16 +673,63 @@ function phase(id) {
 }
 
 /* ── SAVE TO COLLECTION ── */
-function saveToCollection(name, category) {
+async function saveToCollection(name, category) {
   if (!generatedHTML) return;
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const slug     = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const filename = `${slug}.html`;  // bare filename — brain strips any path prefix
   const swatches = { sourdough:'linear-gradient(90deg,#4a3018,#8b6340)', bread:'linear-gradient(90deg,#5c4020,#c8a060)', pastry:'linear-gradient(90deg,#3a2060,#8060c0)', sweet:'linear-gradient(90deg,#8b5e0a,#d4a017)', savory:'linear-gradient(90deg,#2a1e0e,#8b5e2a)' };
-  RECIPES.push({ id:RECIPES.length+1, title:name, category:category||'savory', tags:[category||'savory'], time:'?', filename:`recipes/${slug}.html`, swatch:swatches[category]||swatches.savory });
-  renderGrid();
-  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(new Blob([generatedHTML],{type:'text/html'})), download:`${slug}.html` });
-  a.click();
-  closeAll();
-  toast(`"${name}" added. Drop the downloaded file into your recipes/ folder.`);
+
+  // Card link points to the shelf container (nginx on :3001)
+  const cardUrl = `${SHELF_URL}/recipes/${filename}`;
+
+  const entry = {
+    id:       RECIPES.length + 1,
+    title:    name,
+    category: category || 'savory',
+    tags:     [category || 'savory'],
+    time:     '?',
+    filename: cardUrl,   // full URL to shelf container
+    swatch:   swatches[category] || swatches.savory
+  };
+
+  try {
+    // POST HTML to brain — it writes to the shared Docker volume
+    const saveRes = await fetch(`${BRAIN_URL}/api/save-card`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ filename, html: generatedHTML })
+    });
+
+    if (!saveRes.ok) {
+      const errBody = await saveRes.json().catch(() => ({}));
+      throw new Error(errBody.error || `Brain returned ${saveRes.status}`);
+    }
+
+    // Verify shelf can serve it (shelf reads from same Docker volume)
+    const checkRes = await fetch(cardUrl, { method: 'HEAD' });
+    if (!checkRes.ok) {
+      throw new Error(`Card written but shelf returned ${checkRes.status} for ${cardUrl}. Check volume mount.`);
+    }
+
+    RECIPES.push(entry);
+    persistCatalog();
+    renderGrid();
+    closeAll();
+    toast(`"${name}" saved — tap the card to open it.`);
+
+  } catch (err) {
+    console.error('Save error:', err.message);
+    document.getElementById('errMsg').textContent = `Save failed: ${err.message}`;
+    phase('gpError');
+    // Still add grid entry and offer local download as fallback
+    RECIPES.push(entry);
+    persistCatalog();
+    renderGrid();
+    Object.assign(document.createElement('a'), {
+      href:     URL.createObjectURL(new Blob([generatedHTML], { type: 'text/html' })),
+      download: filename
+    }).click();
+  }
 }
 
 function toast(msg) {
@@ -821,7 +744,7 @@ function toast(msg) {
 const openM  = id => document.getElementById(id)?.classList.add('open');
 const closeM = id => document.getElementById(id)?.classList.remove('open');
 function closeAll() {
-  ['newRecipeModal','keyModal','deployModal'].forEach(closeM);
+  ['newRecipeModal'].forEach(closeM);
   document.getElementById('previewOverlay')?.classList.remove('open');
 }
 function resetNewRecipe() {
@@ -842,29 +765,8 @@ document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', ()=>
 // search
 document.getElementById('searchInput').addEventListener('input', e=>{ searchQuery = e.target.value; renderGrid(); });
 
-// key modal
-['keyBtn','bannerKeyBtn'].forEach(id => document.getElementById(id).addEventListener('click', ()=>openM('keyModal')));
-document.getElementById('closeKeyModal').addEventListener('click', ()=>closeM('keyModal'));
-document.getElementById('keyModal').addEventListener('click', e=>{ if(e.target.id==='keyModal') closeM('keyModal'); });
-document.getElementById('saveKeyBtn').addEventListener('click', ()=>{
-  const v = document.getElementById('apiKeyInput').value.trim();
-  if (!v) return;
-  if (!v.startsWith('sk-')) {
-    document.getElementById('keyDot').className = 'k-dot err';
-    document.getElementById('keyStatusText').textContent = "Doesn't look valid — should start with sk-ant-";
-    return;
-  }
-  localStorage.setItem(STORAGE_KEY, v);
-  refreshKeyUI(); closeM('keyModal'); toast('API key saved — ready to generate cards!');
-});
-document.getElementById('clearKeyBtn').addEventListener('click', ()=>{
-  localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('apiKeyInput').value = '';
-  refreshKeyUI();
-});
-
 // new recipe modal
-document.getElementById('newRecipeBtn').addEventListener('click', ()=>{ resetNewRecipe(); refreshKeyUI(); openM('newRecipeModal'); document.getElementById('recipeName').focus(); });
+document.getElementById('newRecipeBtn').addEventListener('click', ()=>{ resetNewRecipe(); openM('newRecipeModal'); document.getElementById('recipeName').focus(); });
 ['closeNewRecipe','cancelNewRecipe'].forEach(id => document.getElementById(id).addEventListener('click', ()=>{ abort?.abort(); closeM('newRecipeModal'); }));
 document.getElementById('newRecipeModal').addEventListener('click', e=>{ if(e.target.id==='newRecipeModal'){ abort?.abort(); closeM('newRecipeModal'); } });
 document.getElementById('cancelGenBtn').addEventListener('click', ()=>{ abort?.abort(); phase(null); });
@@ -877,17 +779,9 @@ document.getElementById('generateBtn').addEventListener('click', async ()=>{
   const notes    = document.getElementById('recipeNotes').value.trim();
   if (!name) { document.getElementById('recipeName').focus(); return; }
 
-  if (!hasKey()) {
-    const cn = { sourdough:'Use my 100% hydration sourdough starter.', bread:'For KitchenAid Artisan stand mixer.', pastry:'For KitchenAid Artisan stand mixer.', sweet:'For KitchenAid Artisan stand mixer.', savory:'' }[category]||'';
-    const p = [`Search for a well-tested recipe for **${name}**.`,'Convert all measurements to metric weight (grams / ml).',cn,notes?`Notes: ${notes}`:'','Create a branded #SometimesaBaker HTML recipe card with:','- Interactive serving scaler','- Countdown timers with pause / resume / reset and audio alert','- Per-serving macro nutrition panel','- Source attribution','- "From Scratch · By Weight" branding'].filter(Boolean).join('\n');
-    document.getElementById('fallbackText').textContent = p;
-    document.getElementById('fallback').classList.add('on');
-    return;
-  }
-
   generatedTitle = name;
   phase('gpGenerating');
-  document.getElementById('genMsg').textContent  = 'Researching recipe…';
+  document.getElementById('genMsg').textContent   = 'Researching recipe…';
   document.getElementById('genChars').textContent = '';
 
   try {
@@ -928,22 +822,12 @@ document.getElementById('dlCardBtn').addEventListener('click', ()=>{
   Object.assign(document.createElement('a'),{ href:URL.createObjectURL(new Blob([generatedHTML],{type:'text/html'})), download:`${generatedTitle.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.html` }).click();
 });
 
-// deploy modal
-document.getElementById('deployBtn').addEventListener('click', ()=>openM('deployModal'));
-document.getElementById('closeDeployModal').addEventListener('click', ()=>closeM('deployModal'));
-document.getElementById('deployModal').addEventListener('click', e=>{ if(e.target.id==='deployModal') closeM('deployModal'); });
-
-// download recipes.json
-document.getElementById('dlRecipesJson').addEventListener('click', ()=>{
-  Object.assign(document.createElement('a'),{ href:URL.createObjectURL(new Blob([JSON.stringify(RECIPES,null,2)],{type:'application/json'})), download:'recipes.json' }).click();
-});
-
 // service worker
 if ('serviceWorker' in navigator)
   window.addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 
 // init
-refreshKeyUI();
+loadCatalog();
 renderGrid();
 </script>
 </body>
